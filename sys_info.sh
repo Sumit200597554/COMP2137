@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # System Information
 HOSTNAME=$(hostname)
 OS=$(source /etc/os-release && echo $PRETTY_NAME)
@@ -18,11 +19,12 @@ DNS_SERVER=$(grep "nameserver" /etc/resolv.conf | awk '{print $2}')
 
 # System Status
 LOGGED_IN_USERS=$(who | awk '{print $1}' | sort | uniq | paste -s -d ',')
-DISK_SPACE=$(df -h / | awk 'NR==2 {print $4}')
+DISK_SPACE=$(df -h / | grep '/$' | awk '{print $4}')
 PROCESS_COUNT=$(ps aux | wc -l)
 LOAD_AVG=$(uptime | awk -F 'load average:' '{print $2}' | xargs)
 LISTENING_PORTS=$(ss -tuln | awk 'NR > 1 {print $5}' | cut -d':' -f2 | sort -n | uniq | paste -s -d ',')
-UFW_STATUS=$(sudo ufw status | grep "Status:" | awk '{print $2}')
+UFW_STATUS=$(sudo ufw status 2>/dev/null | grep "Status:" | awk '{print $2}')
+
 # Report Header
 cat <<EOF
 
@@ -37,8 +39,8 @@ Uptime: $UPTIME
 Hardware Information
 --------------------
 CPU: $CPU
-RAM: $RAM
-Disks:
+Ram: $RAM
+Disk(s):
 $DISKS
 Video: $VIDEO
 
@@ -59,3 +61,4 @@ Listening Network Ports: $LISTENING_PORTS
 UFW Status: $UFW_STATUS
 
 EOF
+
